@@ -1,0 +1,126 @@
+%%
+%% This is file `proofpack.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% proofpack.dtx  (with options: `package')
+%% ----------------------------------------------------------------
+%% proofpack --- A Natural Deduction Proof Package
+%% E-mail: www.davidagler.com
+%% Released under the LaTeX Project Public License v1.3c or later
+%% See http://www.latex-project.org/lppl.txt
+%% ----------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{proofpack}[2023/07/07 v0.1 Proof Pack for Natural Deduction]
+\RequirePackage{lmodern, amsmath, tikz}
+\RequirePackage{amssymb, mathtools, etoolbox, array, longtable}
+\newcounter{deducecounter}
+\setcounter{deducecounter}{0}
+\newbool{resetdeducecounter}
+\booltrue{resetdeducecounter}
+\newbool{increasededucecounter}
+\booltrue{increasededucecounter}
+    % Several counters are used to keep track of the line numbers in the proof. When the user sets line counter, |userlinecounter| switches to true and the counter is manually set.
+\newcounter{userlinecounternum}
+\setcounter{userlinecounternum}{0}
+\newbool{userlinecounter} % manually set line counter
+\boolfalse{userlinecounter}
+\newcommand{\formatdeducecounter}[1]{\scriptsize \arabic{#1}}
+\newcommand{\deducecounter}{%
+\ifbool{increasededucecounter}{\addtocounter{deducecounter}{1}}{}
+\ifbool{userlinecounter}{\setcounter{deducecounter}{
+  \value{userlinecounternum}}}{}%
+\formatdeducecounter{deducecounter}}
+    % Formats the line heights in the proof.
+\newlength{\pplineht}
+\setlength{\pplineht}{1.5\baselineskip}
+\newlength{\ppindent}
+\setlength{\ppindent}{0.4em}
+\newlength{\ppnumsep}
+\setlength{\ppnumsep}{\ppindent}
+\newlength{\ppsep}
+\setlength{\ppsep}{\ppindent}
+\newlength{\ppnumwd}
+\setlength{\ppnumwd}{1em}
+\newlength{\ppjustindent}
+\setlength{\ppjustindent}{2em}
+\makeatletter
+\newcommand\ppvline{%
+  \vrule\@height\ht\strutbox\@depth\dimexpr
+  \dp\strutbox + 2pt\@width\arrayrulewidth\relax
+}
+\makeatother
+\newcounter{counthyp} % counter for number of hypotheses
+\setcounter{counthyp}{1} % set counter to 1
+\newcommand{\hyp}[1][1]{%
+    \setcounter{counthyp}{1}
+    \whileboolexpr{test{\ifnumcomp{#1}{>}{\value{counthyp}}}}
+    {
+        \hspace*{\ppsep}\vline\hspace*{\ppindent}\stepcounter{counthyp}% True
+    }
+    \hspace*{\ppsep}\ppvline\hspace*{\ppindent}% False
+}
+\newcommand{\hypl}[1][1]{%
+    \setcounter{counthyp}{1}
+    \whileboolexpr{test{\ifnumcomp{#1}{>}{\value{counthyp}}}}
+    {
+      \hspace*{\ppsep}\vline\hspace*{\ppindent}\stepcounter{counthyp}% True
+    }
+    \hspace*{\ppsep}\ppvline\hspace*{-\dimexpr\ppsep}\raisebox{-1.25ex}
+    {\hspace*{4.0pt}\rule[.5ex]{2.35em}{\arrayrulewidth}}
+    \hspace*{\dimexpr \ppindent - 2.35em}% False
+}
+\newcounter{sub}
+\setcounter{sub}{0}
+\newcommand{\sub}[1][1]{
+    \foreach \x in {1,...,#1} {%
+    \hspace*{\ppsep}\vline\hspace*{\ppindent}
+    }
+    \stepcounter{sub}%
+}
+\newcommand{\rightmarker}{%
+\makebox[1.75\ppindent][r]{${\lhd}$}}
+\newcommand{\leftmarker}{%
+\hspace*{\ppsep}\makebox[0pt][r]{${\rhd}$}}
+\newcommand{\bxdwff}[1]{%
+  \tikz[baseline=(content.base)] \node[draw, inner sep=2pt] (content) {#1};%
+}
+\newcommand{\cwff}[2][blue]{%
+  \textcolor{#1}{#2}%
+}
+\newenvironment{sdeducenum}%
+{\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
+\begin{tabular}{!{\makebox[\ppnumwd][r]{\deducecounter}
+    \hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}}
+{\end{tabular}}
+\newenvironment{sdeduce}{%
+  \renewcommand{\arraystretch}{1.25}%
+  \begin{sdeducenum}%
+}{%
+  \end{sdeducenum}%
+}
+\newenvironment{mdeducenum}{%
+  \begin{tabular}{>{\scriptsize}r@{\hspace{\ppnumsep}}
+    >{$}l<{$}@{\hspace{\ppjustindent}}l}%
+}{%
+  \end{tabular}%
+}
+\newenvironment{mdeduce}{\renewcommand{\arraystretch}
+{1.25}\begin{mdeducenum}}{\end{mdeducenum}}
+\newenvironment{ldeducenum}[1][l]%
+{\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
+\begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}
+    \hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}}
+{\end{longtable}
+}
+\newenvironment{ldeduce}{%
+  \renewcommand{\arraystretch}{1.25}%
+  \begin{ldeducenum}%
+}{%
+  \end{ldeducenum}%
+}
+%% Copyright (C) 2023 by David W. Agler.
+%% This file may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3 of this license or (at your option) any later version. The latest version of this license is in: http://www.latex-project.org/lppl.txt and version 1.3 or later is part of all distributions of LaTeX version 2005/12/01 or later. This work consists of the file proofpack.dtx and the derived files proofpack.ins, proofpack.pdf and proofpack.sty.
+%%
+%% End of file `proofpack.sty'.
