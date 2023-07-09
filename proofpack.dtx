@@ -79,7 +79,7 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %</internal>
 %<*package>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{proofpack}[2023/07/07 v0.1 Proof Pack for Natural Deduction]
+\ProvidesPackage{proofpack}[2023/07/09 v0.2 Proof Pack for Natural Deduction]
 %</package>
 %<*driver>
 \documentclass{ltxdoc}
@@ -96,6 +96,9 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 \end{document}
 %</driver>
 %\fi
+%
+%\changes{v0.1}{2023/07/07}{Initial public release}
+%\changes{v0.2}{2023/07/09}{Aded \setlength{\LTpost}{0pt} to ldeduce environ to remove extra space after longtable}
 %
 %\GetFileInfo{\jobname.sty}
 %
@@ -678,6 +681,7 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %\begin{macro}{\ldeduce}
 % The |\ldeduce|\oarg{l,c,r} environment is for proofs that break across the page. Takes an optional argument for alignment (argument is l, c, or r). The option defaults to l (left aligned). Usage: |\begin{ldeduce}[l]| \ldots |\end{ldeduce}|
 %    \begin{macrocode}
+\setlength{\LTpost}{0pt} % remove space after longtable !!!!!!!!!
 \newenvironment{ldeducenum}[1][l]%
 {\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
 \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}

@@ -12,7 +12,7 @@
 %% See http://www.latex-project.org/lppl.txt
 %% ----------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{proofpack}[2023/07/07 v0.1 Proof Pack for Natural Deduction]
+\ProvidesPackage{proofpack}[2023/07/09 v0.2 Proof Pack for Natural Deduction]
 \RequirePackage{lmodern, amsmath, tikz}
 \RequirePackage{amssymb, mathtools, etoolbox, array, longtable}
 \newcounter{deducecounter}
@@ -108,6 +108,7 @@
 }
 \newenvironment{mdeduce}{\renewcommand{\arraystretch}
 {1.25}\begin{mdeducenum}}{\end{mdeducenum}}
+\setlength{\LTpost}{0pt} % remove space after longtable !!!!!!!!!
 \newenvironment{ldeducenum}[1][l]%
 {\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
 \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}
