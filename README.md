@@ -15,3 +15,4 @@ Here is a video overview that covers the absolute basics (intended for beginners
 [![proofpack](http://img.youtube.com/vi/8ff3tPF0YQ4/0.jpg)](http://www.youtube.com/watch?v=8ff3tPF0YQ4 "ProofPack")
 
 See [proofpack.pdf](https://github.com/davidagler/proofpack/blob/main/proofpack.pdf) for documenation and usage.
+

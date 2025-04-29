@@ -1,3 +1,4 @@
 ----------------------------------------------------------------
 The 'proofpack' package is a package to typeset natural deduction proofs (in mostly a Fitch-style way). Released under the LaTeX Project Public License v1.3c or later. See http://www.latex-project.org/lppl.txt
 ----------------------------------------------------------------
+

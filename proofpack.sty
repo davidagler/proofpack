@@ -13,8 +13,11 @@
 %% ----------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{proofpack}[2023/07/09 v0.2 Proof Pack for Natural Deduction]
+
 \RequirePackage{lmodern, amsmath, tikz}
+\RequirePackage{newfloat}
 \RequirePackage{amssymb, mathtools, etoolbox, array, longtable}
+\RequirePackage{xparse}
 \newcounter{deducecounter}
 \setcounter{deducecounter}{0}
 \newbool{resetdeducecounter}
@@ -109,17 +112,55 @@
 \newenvironment{mdeduce}{\renewcommand{\arraystretch}
 {1.25}\begin{mdeducenum}}{\end{mdeducenum}}
 \setlength{\LTpost}{0pt} % remove space after longtable !!!!!!!!!
-\newenvironment{ldeducenum}[1][l]%
-{\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
-\begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}
-    \hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}}
-{\end{longtable}
+\setlength{\LTpre}{0.5em} % remove space before longtable !!!!!!!!!
+\makeatletter
+\renewcommand{\LT@makecaption}[3]{%
+  \LT@mcol\LT@cols c{\hbox to\z@{\hss\parbox[t]\LTcapwidth{% \reset@font
+    \sbox\@tempboxa{#1{#2: }#3}%
+    \ifdim\wd\@tempboxa>\hsize
+      #1{#2: }#3%
+    \else
+      \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+    \endgraf}%
+  \hss}}}
+\makeatother
+
+\NewDocumentEnvironment{ldeducenum}{O{l} O{} O{}}{%
+\renewcommand\tablename{Proof}
+  \ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}%
+  \ifblank{#2}{%
+    \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}\hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}%
+  }{
+      \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}\hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}\caption{#2}\label{#3}\\%
+    }%
+  }%
+{%
+  \end{longtable}
 }
 \newenvironment{ldeduce}{%
-  \renewcommand{\arraystretch}{1.25}%
   \begin{ldeducenum}%
 }{%
   \end{ldeducenum}%
+}
+\RequirePackage{tabularray}
+\UseTblrLibrary{counter}
+\newenvironment{ltdeducenum}{
+  \ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
+  \begin{tblr}{
+    colspec={Q[l]Q[l,mode=math]Q[l]},
+    baseline=t,
+    long,
+    column{1}={font=\deducecounter},
+  }
+}{
+  \end{tblr}
+}
+\DeclareFloatingEnvironment[name=Proof, placement=!htb]{proof}
+\newenvironment{ltdeduce}{%
+  \begin{ltdeducenum}%
+}{%
+  \end{ltdeducenum}%
 }
 %% Copyright (C) 2023 by David W. Agler.
 %% This file may be distributed and/or modified under the conditions of the LaTeX Project Public License, either version 1.3 of this license or (at your option) any later version. The latest version of this license is in: http://www.latex-project.org/lppl.txt and version 1.3 or later is part of all distributions of LaTeX version 2005/12/01 or later. This work consists of the file proofpack.dtx and the derived files proofpack.ins, proofpack.pdf and proofpack.sty.

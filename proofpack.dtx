@@ -98,7 +98,8 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %\fi
 %
 %\changes{v0.1}{2023/07/07}{Initial public release}
-%\changes{v0.2}{2023/07/09}{Aded \setlength{\LTpost}{0pt} to ldeduce environ to remove extra space after longtable}
+%\changes{v0.2}{2023/07/09}{Added \setlength{\LTpost}{0pt} to ldeduce environ to remove extra space after longtable}
+%\changes{v0.3}{2023/07/12}{Added caption and label options to \begin{ldeduce} environment}
 %
 %\GetFileInfo{\jobname.sty}
 %
@@ -118,7 +119,7 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %
 %\section{Introduction}
 %
-% There are several packages that provide support for typesetting natural deduction proofs. These include \href{https://ctan.org/pkg/lplfitch}{lplfitch} by John Etchemendy, Dave Barker-Plummer, and Richard Zach, \href{https://ctan.org/pkg/logicproof}{logicproof} by Alan Davison, \href{https://ctan.org/pkg/natded}{natded} by Ajalloeian and Pelletier, |fitch| by Johan Kl\"{o}wer, another \href{https://www.mathstat.dal.ca/~selinger/fitch/}{fitch} by Peter Selinger, and \href{https://ctan.org/pkg/bussproofs}{bussproofs} by Samuel R. Buss.
+% There are several packages that provide support for typesetting natural deduction proofs. These include \href{https://ctan.org/pkg/lplfitch}{lplfitch} by John Etchemendy, Dave Barker-Plummer, and Richard Zach, \href{https://ctan.org/pkg/logicproof}{logicproof} by Alan Davison, \href{https://ctan.org/pkg/natded}{natded} by Ajalloeian and Pelletier, \href{https://www.ctan.org/pkg/synproof}{synproof} by Yuri Robbers and Paul Isambert, |fitch| by Johan Kl\"{o}wer, another \href{https://www.mathstat.dal.ca/~selinger/fitch/}{fitch} by Peter Selinger, and \href{https://ctan.org/pkg/bussproofs}{bussproofs} by Samuel R. Buss.
 %
 % |proofpack| is another package to typeset natural deduction proofs (in mostly a Fitch-style way). \textsf{proofpack} is most similar to \textsf{fitch.sty} by Johan W. Klawer (June 10, 2001) and edited by Alexander W. Kocurek (June 8, 2019). It deviates from this package in several ways, but notably it allows for simpler input. The simpler input makes it more attractive to those new to \LaTeX\ and for students learning logic.
 %
@@ -365,10 +366,30 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %\end{verbatim}
 % \end{minipage}
 %
+%The |ldeduce| environment takes three optional arguments 1 is the alignment (options include "l" for left, "c" for center, and "r" for right; the default is l), 2 is the caption (default is empty, and the caption is above the proof), and 3 is the label (default is empty). The following example shows how to use the optional arguments.
+%
+%\begin{ldeduce}[l]
+%\phi\rightarrow \psi                 &P\\
+%(\exists x)(\exists y)Pxy           &P\\
+%\end{ldeduce}
+%
+%\begin{ldeduce}[c][A centered proof]
+%\phi\rightarrow\psi                 & P \\
+%(\exists x)(\exists y)Pxy           & P \\
+%\end{ldeduce}
+%
+%\begin{ldeduce}[r]
+%\phi\rightarrow\psi                 & P \\
+%(\exists x)(\exists y)Pxy           & P \\
+%\end{ldeduce}
+%
+%
+
+%
 %For long proofs or for proofs you want to break across pages, use the |ldeduce| environment. This environment will automatically number the lines of the proof. 
 %
 %\begin{ldeduce}
-%\phi\rightarrow \psi                 &P\\
+%\phi\rightarrow \psi                &P\\
 %(\exists x)(\exists y)Pxy           &P\\
 %\hyp \cwff[magenta]{P\rightarrow Q}  &$1,2\vee E$\\
 %\sub[1] \Box P                       &$1,2 \vee E$\\
@@ -458,6 +479,7 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %Q                                    &$1,2 \rightarrow E$\\
 %\end{ldeduce}   
 %\end{verbatim}
+%
 %\StopEventually{}
 %
 %\section{Implementation}
@@ -466,7 +488,9 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 % Some packages are required for the package to work.
 %    \begin{macrocode}
 \RequirePackage{lmodern, amsmath, tikz}
+\RequirePackage{newfloat}
 \RequirePackage{amssymb, mathtools, etoolbox, array, longtable}
+\RequirePackage{xparse}
 %    \end{macrocode}
 %\end{macro}
 %
@@ -679,20 +703,62 @@ This file may be distributed and/or modified under the conditions of the LaTeX P
 %\end{macro}
 %
 %\begin{macro}{\ldeduce}
-% The |\ldeduce|\oarg{l,c,r} environment is for proofs that break across the page. Takes an optional argument for alignment (argument is l, c, or r). The option defaults to l (left aligned). Usage: |\begin{ldeduce}[l]| \ldots |\end{ldeduce}|
+% The |\ldeduce|\oarg{l,c,r}\oarg{caption}\oarg{label} environment is for proofs that break across the page. Takes an optional argument for alignment (argument is l, c, or r). The option defaults to l (left aligned). Usage: |\begin{ldeduce}[l]| \ldots |\end{ldeduce}|
 %    \begin{macrocode}
 \setlength{\LTpost}{0pt} % remove space after longtable !!!!!!!!!
-\newenvironment{ldeducenum}[1][l]%
-{\ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
-\begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}
-    \hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}}
-{\end{longtable}
+\setlength{\LTpre}{0.5em} % remove space before longtable !!!!!!!!!
+\makeatletter
+\renewcommand{\LT@makecaption}[3]{%
+  \LT@mcol\LT@cols c{\hbox to\z@{\hss\parbox[t]\LTcapwidth{% \reset@font
+    \sbox\@tempboxa{#1{#2: }#3}%
+    \ifdim\wd\@tempboxa>\hsize
+      #1{#2: }#3%
+    \else
+      \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+    \endgraf}%
+  \hss}}}
+\makeatother
+
+\NewDocumentEnvironment{ldeducenum}{O{l} O{} O{}}{%
+\renewcommand\tablename{Proof} 
+  \ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}%
+  \ifblank{#2}{%
+    \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}\hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}%
+  }{
+      \begin{longtable}[#1]{!{\makebox[\ppnumwd][r]{\deducecounter}\hspace{\ppnumsep-\ppsep}}>{$}l<{$}@{\hspace{\ppjustindent}}l}\caption{#2}\label{#3}\\%
+    }%
+  }%
+{%
+  \end{longtable}
 }
 \newenvironment{ldeduce}{%
-  \renewcommand{\arraystretch}{1.25}%
   \begin{ldeducenum}%
 }{%
   \end{ldeducenum}%
+}
+%    \end{macrocode}
+%\end{macro}
+%\begin{macro}{}
+%    \begin{macrocode}
+\RequirePackage{tabularray}
+\UseTblrLibrary{counter}
+\newenvironment{ltdeducenum}{
+  \ifbool{resetdeducecounter}{\setcounter{deducecounter}{0}}{}
+  \begin{tblr}{
+    colspec={Q[l]Q[l,mode=math]Q[l]},
+    baseline=t,
+    long,
+    column{1}={font=\deducecounter},
+  }
+}{
+  \end{tblr}
+}
+\DeclareFloatingEnvironment[name=Proof, placement=!htb]{proof}
+\newenvironment{ltdeduce}{%
+  \begin{ltdeducenum}%
+}{%
+  \end{ltdeducenum}%
 }
 %    \end{macrocode}
 %\end{macro}

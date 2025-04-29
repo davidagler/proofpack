@@ -1,0 +1,6 @@
+*.fdb_latexmk
+*.fls
+*.hd
+*.ins
+TODO.txt
+*.log
